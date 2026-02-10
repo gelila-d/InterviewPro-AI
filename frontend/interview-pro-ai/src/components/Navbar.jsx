@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Code, MessageSquare, BookOpen, BarChart2, User, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { Menu, X, Code, MessageSquare, BookOpen, BarChart2, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     const navigation = [
         { name: 'Dashboard', href: '/dashboard', icon: BarChart2 },
@@ -14,15 +17,14 @@ const Navbar = () => {
         { name: 'Analytics', href: '/analytics', icon: BarChart2 },
     ];
 
-    // Check if current path is login or register to hide navbar or show different one
-    if (['/login', '/register', '/'].includes(location.pathname)) {
-        // Only show for main app pages, or handle differently.
-        // For now, let's show a simple nav or nothing on auth pages?
-        // Usually auth pages have minimal nav.
-        if (location.pathname === '/') return <Navigate to="/dashboard" />; // Redirect root to dashboard for now or landing
-        // But let's keep it simple. Only show full nav on app pages.
-        if (['/login', '/register'].includes(location.pathname)) return null;
-    }
+    // Hide Navbar on auth pages
+    if (['/login', '/register'].includes(location.pathname)) return null;
+    if (location.pathname === '/') return <Navigate to="/dashboard" />;
+
+    const handleLogout = () => {
+        logout();           // Clear token + user
+        navigate('/login'); // Redirect to login page
+    };
 
     return (
         <nav className="bg-gray-900 border-b border-gray-800 text-white">
@@ -37,34 +39,35 @@ const Navbar = () => {
                         </Link>
                     </div>
 
-                    <div className="hidden md:block">
-                        <div className="ml-10 flex items-baseline space-x-4">
-                            {navigation.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                    <Link
-                                        key={item.name}
-                                        to={item.href}
-                                        className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname === item.href
-                                                ? 'bg-gray-800 text-white'
-                                                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                                            }`}
-                                    >
-                                        <Icon className="h-4 w-4 mr-2" />
-                                        {item.name}
-                                    </Link>
-                                );
-                            })}
-                        </div>
+                    <div className="hidden md:flex items-center space-x-4">
+                        {navigation.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.name}
+                                    to={item.href}
+                                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname === item.href
+                                        ? 'bg-gray-800 text-white'
+                                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                                        }`}
+                                >
+                                    <Icon className="h-4 w-4 mr-2" />
+                                    {item.name}
+                                </Link>
+                            );
+                        })}
+                        {user && (
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors"
+                            >
+                                <LogOut className="h-4 w-4 mr-2" />
+                                Logout
+                            </button>
+                        )}
                     </div>
 
-                    <div className="hidden md:block">
-                        <button className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors">
-                            <LogOut className="h-4 w-4 mr-2" />
-                            Logout
-                        </button>
-                    </div>
-
+                    {/* Mobile menu toggle */}
                     <div className="-mr-2 flex md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
@@ -76,6 +79,7 @@ const Navbar = () => {
                 </div>
             </div>
 
+            {/* Mobile menu */}
             {isOpen && (
                 <div className="md:hidden">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -89,16 +93,19 @@ const Navbar = () => {
                                 {item.name}
                             </Link>
                         ))}
-                        <button className="text-red-400 hover:bg-gray-700 hover:text-red-300 block w-full text-left px-3 py-2 rounded-md text-base font-medium">
-                            Logout
-                        </button>
+                        {user && (
+                            <button
+                                onClick={handleLogout}
+                                className="text-red-400 hover:bg-gray-700 hover:text-red-300 block w-full text-left px-3 py-2 rounded-md text-base font-medium"
+                            >
+                                Logout
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
         </nav>
     );
 };
-
-import { Navigate } from 'react-router-dom';
 
 export default Navbar;

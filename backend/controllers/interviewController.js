@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const InterviewSession = require('../models/InterviewSession');
 const Question = require('../models/Question');
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY?.trim());
 
 // @desc    Start a new interview session
 // @route   POST /api/interview/start
@@ -19,7 +19,7 @@ const startInterview = async (req, res) => {
         });
 
         // Initial prompt to Gemini to start the interview
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
         const chat = model.startChat({
             history: [
                 {
@@ -56,7 +56,7 @@ const chatInterview = async (req, res) => {
             return res.status(404).json({ message: 'Session not found' });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         // Construct history for Gemini
         // specific formatting might be needed based on 'history' structure from frontend
@@ -97,7 +97,7 @@ const evaluateAnswer = async (req, res) => {
     const { question, userAnswer } = req.body;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
         const prompt = `Question: ${question}\nUser Answer: ${userAnswer}\n\nEvaluate the user's answer. Provide a score out of 10 and constructive feedback. Return JSON format: { "score": number, "feedback": "string" }`;
 
         const result = await model.generateContent(prompt);

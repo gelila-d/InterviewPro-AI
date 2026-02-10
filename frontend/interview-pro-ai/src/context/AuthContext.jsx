@@ -2,7 +2,6 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../utils/api';
 
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -14,7 +13,7 @@ export const AuthProvider = ({ children }) => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const { data } = await api.get('/auth/me');
+                    const { data } = await api.get('/auth/me'); // ✅ /api already in baseURL
                     setUser(data);
                 } catch (error) {
                     console.error(error);
@@ -28,14 +27,14 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const { data } = await api.post('/auth/login', { email, password });
+        const { data } = await api.post('/auth/login', { email, password }); // ✅ correct
         localStorage.setItem('token', data.token);
         setUser(data);
         return data;
     };
 
     const register = async (username, email, password) => {
-        const { data } = await api.post('/auth/register', { username, email, password });
+        const { data } = await api.post('/auth/register', { username, email, password }); // ✅ correct
         localStorage.setItem('token', data.token);
         setUser(data);
         return data;

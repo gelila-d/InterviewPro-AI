@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://interviewpro-ai-backend.onrender.com',
+    baseURL: 'https://interviewpro-ai-backend.onrender.com/api', // ✅ ADD /api
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Add a request interceptor to add the auth token to every request
+// Add token automatically
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
